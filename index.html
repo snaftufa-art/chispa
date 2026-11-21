@@ -446,6 +446,34 @@ label.btn{cursor:pointer}
 .dots i.s{background:var(--pink);box-shadow:0 0 6px rgba(255,79,176,.6)}
 button.card.li.town{border:1px solid var(--blue)}
 
+/* ---------- dictionary ---------- */
+.chip.topdict{color:var(--blue);padding:6px 9px}
+.dsearch{display:flex;align-items:center;gap:10px;padding:0 14px;height:52px;border-radius:16px;border:2px solid var(--blue);background:rgba(45,226,255,.06);box-shadow:0 0 14px rgba(45,226,255,.2)}
+.dsearch .svg{width:22px;height:22px;color:var(--blue);flex:none}
+.dsearch input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:inherit;font-size:19px;outline:none}
+.drow{gap:10px;padding:8px 10px}
+.drow .say.sm{flex:none}
+.dopen{text-align:left;min-width:0}
+.dopen b{font-size:17px}
+.dopen small{display:block}
+.dform{color:var(--muted);font-size:14px}
+.dcard{margin-top:10px}
+.dword{font-family:var(--display);font-size:34px;line-height:1.1;text-shadow:0 0 12px rgba(255,79,176,.6)}
+.dvia{font-size:14px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dvia b{color:var(--text)}
+.say.inline{width:30px;height:30px;border-radius:9px}
+.say.inline .svg{width:16px;height:16px}
+.dsense{margin-top:14px}
+.dsense ol{margin:6px 0 0;padding-left:20px;font-size:15.5px}
+.dsense li{margin-bottom:4px}
+.dsense em{color:var(--blue);font-style:normal;font-size:12.5px}
+.dinfo{display:flex;gap:6px;align-items:center;color:var(--menta);font-size:14px;margin:8px 0}
+.dinfo .svg{width:16px;height:16px}
+.dlabel{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.dsrc{font-size:11.5px;color:var(--muted);text-align:center;margin:22px 0 0;opacity:.7}
+#dback .svg{transform:rotate(180deg)}
+
 #top{padding-top:max(10px,env(safe-area-inset-top))}#nav{padding-bottom:max(10px,env(safe-area-inset-bottom))}.screen .lhead{padding-top:max(14px,env(safe-area-inset-top))}
 </style>
 </head>
@@ -1328,6 +1356,7 @@ const ICONS = {
   moon: '<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" fill="currentColor"/>',
   translate: '<path d="M4 5h9M8.5 3v2M6 5c.8 3.2 3 5.8 6 7M11 5c-.8 3.6-3.3 6.4-7 8M13 21l4-10 4 10M14.5 17.5h5" ' + SK + '/>',
   house: '<path d="M3 11.5 12 4l9 7.5" ' + SK + '/><path d="M5.5 10v9.5h13V10" ' + SK + '/><path d="M10 19.5v-5h4v5" ' + SK + '/>',
+  search: '<circle cx="10.5" cy="10.5" r="6.5" ' + SK + '/><path d="M15.5 15.5 21 21" ' + SK + '/>',
   bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" ' + SK + '/>'
 };
 const icon = (n, cls = '') => `<svg class="svg ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`;
@@ -1348,7 +1377,7 @@ UNIT_KEYS[200] = {w: [], s: [], g: []};
 Object.values(CONVS).forEach(cv => cv.l.forEach(l => { const add = (es, en) => { const k = 's|' + es; if (!ITEMS[k]) ITEMS[k] = {k, t: 's', u: 200, es, en}; if (!UNIT_KEYS[200].s.includes(k)) UNIT_KEYS[200].s.push(k); }; if (l[0] === 'p') add(l[1], l[2]); else if (l[0] === 'c') l[1].forEach(o => add(o[0], o[1])); }));
 
 /* ================= state & saving ================= */
-const DEF = () => ({v: 2, xp: 0, gems: 60, streak: 0, best: 0, last: 0, freezes: 1, goal: 100, dayN: 0, dayXp: 0, goalHit: 0, hist: {}, prog: {}, open: 1, items: {}, badges: {}, rayo: 0, boost: 0, sfx: true, auto: true, quests: null, welcomed: 0, snap: {}, acc: {}, sid: 0, wv: true, backup: 0, bonus: {}, owned: {}, wear: {}, rpg: {map: 'casa', x: 5, y: 6, done: {}, flags: {}},
+const DEF = () => ({v: 2, xp: 0, gems: 60, streak: 0, best: 0, last: 0, freezes: 1, goal: 100, dayN: 0, dayXp: 0, goalHit: 0, hist: {}, prog: {}, open: 1, items: {}, badges: {}, rayo: 0, boost: 0, sfx: true, auto: true, quests: null, welcomed: 0, snap: {}, acc: {}, sid: 0, wv: true, backup: 0, bonus: {}, owned: {}, wear: {}, custom: {}, dhist: [], rpg: {map: 'casa', x: 5, y: 6, done: {}, flags: {}},
   st: {lessons: 0, perfect: 0, spoken: 0, reviews: 0, scenes: 0, chats: 0, typed: 0, maxCombo: 0, jackpot: 0, early: 0, owl: 0, allq: 0}, upd: 0});
 let ST = DEF();
 const LS = 'chispa.v2';
@@ -1356,7 +1385,7 @@ const CAP = {sample: null, dictation: null};
 
 const Store = {
   mode: 'local', ref: null, writing: false, pending: false, timer: 0,
-  fix(o) { const s = Object.assign(DEF(), o || {}); s.st = Object.assign(DEF().st, s.st || {}); s.snap = s.snap || {}; s.acc = s.acc || {}; s.rpg = Object.assign(DEF().rpg, s.rpg || {}); s.rpg.done = s.rpg.done || {}; s.rpg.flags = s.rpg.flags || {}; s.bonus = s.bonus || {}; s.owned = s.owned || {}; s.wear = s.wear || {}; if (s.rpg.done.comida) s.rpg.flags.fed = 1; return s; },
+  fix(o) { const s = Object.assign(DEF(), o || {}); s.st = Object.assign(DEF().st, s.st || {}); s.snap = s.snap || {}; s.acc = s.acc || {}; s.rpg = Object.assign(DEF().rpg, s.rpg || {}); s.rpg.done = s.rpg.done || {}; s.rpg.flags = s.rpg.flags || {}; s.bonus = s.bonus || {}; s.owned = s.owned || {}; s.wear = s.wear || {}; s.custom = s.custom || {}; s.dhist = s.dhist || []; if (s.rpg.done.comida) s.rpg.flags.fed = 1; return s; },
   loadLocal() { try { const raw = localStorage.getItem(LS); if (raw) ST = this.fix(JSON.parse(raw)); } catch (e) {} },
   save() {
     ST.upd = Date.now();
@@ -1755,6 +1784,8 @@ function distractors(k, field, n) {
     if (!out.some(p => norm(p) === norm(v))) out.push(v);
     if (out.length >= n) return out;
   }
+  // not enough in nearby units (e.g. your own dictionary words): borrow from the whole course
+  for (const kk of shuffle(Object.keys(ITEMS))) { if (out.length >= n) break; const o = ITEMS[kk]; if (kk === k || o.t !== it.t || o.u > 200) continue; const v = o[field]; if (norm(o.en) !== norm(it.en) && !out.some(p => norm(p) === norm(v)) && norm(v) !== norm(it[field])) out.push(v); }
   return out;
 }
 function exPick(k, dir) { const it = ITEMS[k], toEn = dir === 'es2en'; return {type: 'pick', keys: [k], prompt: toEn ? it.es : it.en, promptEs: toEn, ans: toEn ? it.en : it.es, opts: [toEn ? it.en : it.es, ...distractors(k, toEn ? 'en' : 'es', 3)]}; }
@@ -2676,6 +2707,122 @@ const RPG = (() => {
   return {open, doneCount, total: () => Object.keys(CONVS).length, nextGoal, _dbg: () => ({P, M, npcs, talking, talk, tapMap, interact, bfs, blocked, pickConv})};
 })();
 
+/* ================= Diccionario: offline Spanish–English lookup ================= */
+// Data: Wiktionary (CC BY-SA) via github.com/doozan/spanish_data, built by tools/build_dict.py into dict.json.
+const POS_EN = {n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', interj: 'interjection', prep: 'preposition', conj: 'conjunction', pron: 'pronoun', art: 'article', num: 'number', phrase: 'phrase', det: 'determiner', contr: 'contraction', part: 'particle'};
+const Dict = {
+  data: null, loading: null, en: null, pform: null, plainWords: null,
+  load() {
+    if (this.data) return Promise.resolve(this.data);
+    if (!this.loading) this.loading = fetch('dict.json').then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { this.data = d; this.prep(); return d; }).catch(e => { this.loading = null; throw e; });
+    return this.loading;
+  },
+  prep() {
+    const D = this.data.D; this.plainWords = D.map(e => plain(e[0])); this.en = new Map(); this.pform = new Map();
+    for (const f in this.data.F) { const p = plain(f); if (!this.pform.has(p)) this.pform.set(p, [f, this.data.F[f]]); }
+    D.forEach((e, i) => e[1].forEach((s, si) => s[2].slice(0, 3).forEach((g, gi) => {
+      const main = g[0].replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').toLowerCase();
+      main.split(/[;,]/).forEach((part, pi) => {
+        const toks = part.replace(/^\s*(to|a|an|the) /, ' ').match(/[a-z][a-z'-]*/g) || [];
+        toks.slice(0, 4).forEach((t, ti) => {
+          const score = i + si * 4000 + gi * 1500 + pi * 400 + ti * 300 + (toks.length === 1 ? -2000 : 0);
+          const arr = this.en.get(t); if (!arr) this.en.set(t, [[i, score]]); else if (arr.length < 400) arr.push([i, score]);
+        });
+      });
+    })));
+  },
+  // returns [{i, via}] for Spanish matches, [{i}] for English matches, and app phrases
+  search(q) {
+    const out = {es: [], en: [], pre: [], app: []}; q = q.trim(); if (!q || !this.data) return out;
+    const p = plain(q), D = this.data.D, seen = new Set(), add = (i, via) => { if (!seen.has(i)) { seen.add(i); out.es.push({i, via}); } };
+    const exact = this.plainWords.indexOf(p); if (exact >= 0) add(exact);
+    const f = this.data.F[q.toLowerCase()] ?? (this.pform.get(p) || [])[1]; if (f !== undefined) add(f, (this.pform.get(p) || [q])[0]);
+    const direct = out.es.length;
+    out.pre = []; if (p.length >= 2) for (let i = 0; i < D.length && out.pre.length < 12; i++) if (!seen.has(i) && this.plainWords[i].startsWith(p)) { seen.add(i); out.pre.push({i}); }
+    const toks = (q.toLowerCase().match(/[a-z][a-z'-]*/g) || []).filter(t => !['to', 'a', 'an', 'the'].includes(t));
+    if (!direct && toks.length && /^[a-z' -]+$/i.test(q)) {
+      const best = new Map();
+      (this.en.get(toks[0]) || []).forEach(([i, s]) => { const g = D[i][1].map(x => x[2].map(y => y[0]).join(' ')).join(' ').toLowerCase(); if (toks.every(t => g.includes(t))) best.set(i, Math.min(best.get(i) ?? 1e9, s)); });
+      out.en = [...best].sort((a, b) => a[1] - b[1]).slice(0, 12).map(([i]) => ({i}));
+      const enSet = new Set(out.en.map(x => x.i)); out.pre = out.pre.filter(x => !enSet.has(x.i));
+    }
+    if (p.length >= 3) out.app = Object.values(ITEMS).filter(it => it.t === 's' && (plain(it.es).includes(p) || (toks.length && plain(it.en).includes(p)))).slice(0, 6);
+    return out;
+  },
+  headword(i) { const [w, ss] = this.data.D[i], s = ss.find(x => x[0] === 'n'); const g = s && s[1]; return g && !w.includes(' ') ? (g[0] === 'f' && !/^m/.test(g) ? 'la ' : g[0] === 'm' ? 'el ' : '') + w : w; },
+  short(i) { const g = this.data.D[i][1][0][2][0][0]; return g.split(/;|, (?=[a-z])/)[0].replace(/\s*\([^)]*\)/g, '').replace(/\s*[(#\[].*$/, '').trim() || g.slice(0, 40); }
+};
+// words you add from the dictionary become part of your review (unit 300)
+UNIT_KEYS[300] = {w: [], s: [], g: [], x: []};
+function registerCustom() {
+  for (const [es, en] of Object.entries(ST.custom || {})) { const k = 'w|' + es; if (!ITEMS[k]) ITEMS[k] = {k, t: 'w', u: 300, es, en}; if (!UNIT_KEYS[300].w.includes(k)) UNIT_KEYS[300].w.push(k); }
+}
+function courseKeyFor(word) { const w = word.toLowerCase(); return ['w|' + w, 'w|el ' + w, 'w|la ' + w, 'w|los ' + w, 'w|las ' + w].find(k => ITEMS[k] && ITEMS[k].u !== 300); }
+// the best thing to say out loud: the course recording (with its article) when there is one
+const sayFor = word => { const k = courseKeyFor(word); return k && Voice.clip(ITEMS[k].es) ? ITEMS[k].es : word; };
+const canHear = text => !!(Voice.clip(sayFor(text)) || Voice.clip(text) || Voice.web || Voice.tts);
+
+function openDictionary(start) {
+  Sfx.ac();
+  const s = openScreen(`<div class="lhead"><button class="xbtn" id="dx" aria-label="Close">${icon('x')}</button><div style="flex:1"><b style="font-size:17px">Diccionario</b><div style="color:var(--muted);font-size:12.5px">Español ⇄ English · works offline</div></div></div>
+    <div class="lbody" style="padding-top:4px"><div class="dsearch">${icon('search')}<input id="dq" type="search" placeholder="Escribe una palabra… (gato, tengo, cat)" aria-label="Search a word" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="accents" id="dacc">${['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü'].map(c => `<button data-c="${c}" aria-label="Insert ${c}">${c}</button>`).join('')}</div>
+    <div id="dres" style="margin-top:12px"></div><p class="dsrc">Dictionary: Wiktionary (CC BY-SA) via doozan/spanish_data.</p></div>`);
+  const dq = $('#dq'), res = $('#dres');
+  const hint = () => res.innerHTML = `<div class="card"><h3>${icon('search')} Busca cualquier palabra</h3><p style="margin:0">Type in Spanish or English. Conjugated verbs work too: <b>tengo</b> finds <b>tener</b>. Tap 🔊 to hear it, and add words to your review so they come back.</p></div>
+    ${(ST.dhist || []).length ? `<div class="instr" style="margin-top:6px">Recientes</div><div class="chips">${ST.dhist.map(w => `<button class="pill" data-w="${esc(w)}">${esc(w)}</button>`).join('')}</div>` : ''}
+    ${Object.keys(ST.custom || {}).length ? `<div class="instr" style="margin-top:14px">Mis palabras · ${Object.keys(ST.custom).length}</div><div class="chips">${Object.keys(ST.custom).slice(-30).reverse().map(w => `<button class="pill" data-w="${esc(w)}">${esc(w)}</button>`).join('')}</div>` : ''}`;
+  const row = (i, via) => { const hw = Dict.headword(i), pos = Dict.data.D[i][1].map(x => POS_EN[x[0]] || x[0]).filter((v, j, a) => a.indexOf(v) === j).join(', ');
+    return `<div class="li drow" data-i="${i}"><button class="say sm" data-say="${esc(via || sayFor(Dict.data.D[i][0]))}" aria-label="Listen">${icon('speaker')}</button><button class="grow dopen" data-i="${i}" data-via="${esc(via || '')}"><b>${esc(via && via !== Dict.data.D[i][0] ? via : hw)}</b>${via && via !== Dict.data.D[i][0] ? ` <span class="dform">→ ${esc(hw)}</span>` : ''}<small>${esc(Dict.short(i))} · ${esc(pos)}</small></button></div>`; };
+  const draw = () => {
+    const q = dq.value; if (!q.trim()) return hint();
+    const r = Dict.search(q);
+    let h = '';
+    if (r.es.length) h += `<div class="instr">Español</div><div class="list">${r.es.map(x => row(x.i, x.via)).join('')}</div>`;
+    if (r.en.length) h += `<div class="instr" style="margin-top:${h ? 14 : 0}px">From English</div><div class="list">${r.en.map(x => row(x.i)).join('')}</div>`;
+    if (r.pre.length) h += `<div class="instr" style="margin-top:${h ? 14 : 0}px">${r.es.length || r.en.length ? 'Más palabras' : 'Español'}</div><div class="list">${r.pre.slice(0, r.en.length ? 5 : 12).map(x => row(x.i)).join('')}</div>`;
+    if (r.app.length) h += `<div class="instr" style="margin-top:14px">Frases en Chispa</div><div class="list">${r.app.map(it => `<div class="li drow"><button class="say sm" data-say="${esc(it.es)}" aria-label="Listen">${icon('speaker')}</button><span class="grow"><b>${esc(it.es)}</b><small>${esc(it.en)}</small></span></div>`).join('')}</div>`;
+    res.innerHTML = h || `<p class="hint" style="text-align:center;margin-top:18px">No word found for “${esc(q)}”. Check the spelling, or try the dictionary form (for verbs, the -ar/-er/-ir form).</p>`;
+  };
+  const detail = (i, via) => {
+    const [w, ss] = Dict.data.D[i], hw = Dict.headword(i), ck = courseKeyFor(w), ckey = 'w|' + w, mine = ST.custom && ST.custom[w], learned = ck && ST.items[ck];
+    ST.dhist = [w, ...(ST.dhist || []).filter(x => x !== w)].slice(0, 12); Store.save();
+    res.innerHTML = `<button class="pill" id="dback">${icon('chev')} Resultados</button>
+      <div class="card dcard"><div class="row"><button class="say" data-say="${esc(sayFor(w))}" aria-label="Listen">${icon('speaker')}</button><div class="grow"><div class="dword">${esc(hw)}</div>${via && via !== w ? `<div class="dvia">“${esc(via)}” is a form of <b>${esc(w)}</b> <button class="say sm inline" data-say="${esc(via)}" aria-label="Listen to ${esc(via)}">${icon('speaker')}</button></div>` : ''}</div><button class="say slow sm" data-slow="${esc(sayFor(w))}" aria-label="Listen slowly">${icon('turtle')}</button></div>
+      ${ss.map(s => `<div class="dsense"><span class="tag">${esc(POS_EN[s[0]] || s[0])}${s[1] ? ' · ' + (s[1][0] === 'f' && !/^m/.test(s[1]) ? 'feminine' : s[1][0] === 'm' ? (s[1].includes('f') ? 'masc./fem.' : 'masculine') : esc(s[1])) : ''}</span><ol>${s[2].map(g => `<li>${esc(g[0])}${g[1] ? ` <em>${esc(g[1])}</em>` : ''}</li>`).join('')}</ol></div>`).join('')}
+      <p class="heard" id="dnote">${canHear(w) ? '' : 'This word isn’t recorded in Chispa and your phone has no Spanish voice yet. See the tip below.'}</p>
+      ${ck ? `<p class="dinfo">${icon('check')} In your course${learned ? ` · strength ${boxOf(ck)}/6` : ' · coming up in a lesson'}</p>`
+        : mine ? `<p class="dinfo">${icon('check')} In your review as “${esc(mine)}”</p><button class="btn ghost wide" id="drem">Remove from my review</button>`
+        : `<label class="dlabel" for="den">Meaning to learn</label><input class="typebox nsearch" id="den" value="${esc(Dict.short(i))}" maxlength="60"><button class="btn wide" id="dadd" style="margin-top:10px">${icon('refresh')} Add to my review</button>`}</div>
+      ${canHear(w) ? '' : ttsTip()}`;
+    $('#dback').onclick = draw;
+    const a = $('#dadd'); if (a) a.onclick = () => {
+      const en = ($('#den').value || Dict.short(i)).trim(); ST.custom = ST.custom || {}; ST.custom[w] = en; registerCustom();
+      if (!ST.items[ckey]) ST.items[ckey] = [0, today(), 0, 0, 0];
+      Store.save(); Sfx.play('combo', 5); toast(icon('check') + ` “${esc(w)}” comes back in your Repaso`); detail(i, via);
+    };
+    const rm = $('#drem'); if (rm) rm.onclick = () => { delete ST.custom[w]; delete ST.items[ckey]; Store.save(); toast('Removed'); detail(i, via); };
+    if (ST.auto) Voice.speak(via && via !== w ? via : sayFor(w));
+  };
+  res.onclick = e => {
+    const sb = e.target.closest('[data-say]'); if (sb) { Voice.speak(sb.dataset.say); if (!canHear(sb.dataset.say)) toast('Install a Spanish voice to hear this word. Tip at the bottom.'); return; }
+    const sl = e.target.closest('[data-slow]'); if (sl) return Voice.speak(sl.dataset.slow, {slow: true});
+    const o = e.target.closest('.dopen'); if (o) return detail(+o.dataset.i, o.dataset.via);
+    const c = e.target.closest('[data-w]'); if (c) { dq.value = c.dataset.w; draw(); const r = Dict.search(c.dataset.w); const f = r.es[0] || r.pre[0]; if (f) detail(f.i, f.via); }
+  };
+  let t = 0; dq.oninput = () => { clearTimeout(t); t = setTimeout(draw, 120); };
+  dq.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(t); const r = Dict.search(dq.value); const first = r.es[0] || r.en[0] || r.pre[0]; if (first) detail(first.i, first.via); dq.blur(); } };
+  $$('#dacc button', s).forEach(b => b.onclick = () => { const p = dq.selectionStart ?? dq.value.length; dq.value = dq.value.slice(0, p) + b.dataset.c + dq.value.slice(dq.selectionEnd ?? p); dq.focus(); dq.setSelectionRange(p + 1, p + 1); draw(); });
+  $('#dx').onclick = () => { closeScreen(); go(TAB); };
+  res.innerHTML = `<p class="hint" style="text-align:center;margin-top:18px">Cargando el diccionario…</p>`;
+  Dict.load().then(() => { if (start) { dq.value = start; draw(); } else hint(); setTimeout(() => { try { dq.focus({preventScroll: true}); } catch (e) {} }, 80); })
+    .catch(() => { res.innerHTML = `<p class="hint" style="text-align:center;margin-top:18px">The dictionary couldn’t load. Open Chispa once with internet so it can save it for offline use.</p>`; });
+}
+function ttsTip() {
+  return `<div class="card"><h3>${icon('speaker')} Hear every word</h3><p style="margin:0 0 6px">Chispa has its own recordings for everything in the course. For other words it uses your phone’s voice. On a phone without Google (like GrapheneOS):</p>
+    <p style="margin:0">1. Install <b>SherpaTTS</b> from F-Droid (free, works offline).<br>2. Open it and download a <b>Spanish (es_ES)</b> voice.<br>3. Android <b>Settings → System → Languages → Text-to-speech output</b>: choose SherpaTTS.<br>4. Close Chispa fully and open it again.</p></div>`;
+}
+
 /* ================= Wilma, the black cat ================= */
 function wilma(mood = 'idle', size = 96) {
   const B = 'var(--blue)', D = '#0b0716';
@@ -2777,7 +2924,7 @@ function renderTop() {
   $('#top').innerHTML = `<span class="chip lvl" title="Level">Nv ${li.L}</span>
     <span class="chip flame ${st && ST.last === today() ? '' : 'off'}" title="Streak" style="color:var(--blue)">${icon('flame')}<span style="color:var(--text)">${st}</span></span>
     <span class="chip" title="Gems" style="color:var(--pink)">${icon('gem')}<span style="color:var(--text)">${ST.gems}</span></span>
-    ${boostOn() ? `<span class="chip boost">${icon('bolt')}x2</span>` : ''}<span class="spacer"></span>
+    ${boostOn() ? `<span class="chip boost">${icon('bolt')}x2</span>` : ''}<span class="spacer"></span><button class="chip topdict" id="topdict" aria-label="Diccionario">${icon('search')}</button>
     <div class="ring ${pct >= 1 ? 'full' : ''}" title="Daily goal: ${ST.dayXp} / ${ST.goal} XP"><svg viewBox="0 0 38 38"><circle cx="19" cy="19" r="15" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="5"/><circle cx="19" cy="19" r="15" fill="none" stroke="var(--sol)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}"/></svg><span>${Math.round(pct * 100)}%</span></div>`;
 }
 const IS_APP = typeof STANDALONE !== 'undefined' && STANDALONE;
@@ -2828,7 +2975,7 @@ function importBackup() {
     try {
       const o = await unpackState($('#imcode', m.m).value);
       if (!o || typeof o !== 'object' || !('xp' in o) || !('items' in o)) throw new Error('shape');
-      ST = Store.fix(o); ST.upd = Date.now(); Store.save(); if (Store.ref) Store.push();
+      ST = Store.fix(o); registerCustom(); ST.upd = Date.now(); Store.save(); if (Store.ref) Store.push();
       m.close(); go('progreso'); toast(icon('check') + ` Restored: level ${lvlInfo(ST.xp).L}, ${seenKeys().length} things learned`); Sfx.play('win');
     } catch (e) { $('#imerr', m.m).textContent = 'That code didn’t work. Copy the whole code, starting with CHISPA.'; }
   };
@@ -2921,6 +3068,7 @@ VIEWS.entrenar = () => {
   <div class="card"><div class="row"><div class="grow"><h3>${icon('refresh')} Repaso</h3><p>${seen ? (due ? `${due} items are due. Reviewing them now is what makes them stick.` : 'Nothing is due. You can still do a bonus round.') : 'Finish a lesson first, then your reviews show up here.'}</p></div><div class="big">${due}</div></div>
     ${seen ? `<div class="strength">${b.map((n, i) => `<i style="width:${100 * n / tot}%;background:${cols[i]}"></i>`).join('')}</div><div class="legend"><span>new ${b[0]}</span><span>growing ${b[1]}</span><span>strong ${b[2]}</span><span>solid ${b[3]}</span></div>` : ''}
     <button class="btn wide" id="doreview" style="margin-top:12px" ${seen ? '' : 'disabled'}>Repasar ahora</button></div>
+  <button class="card li town" id="dodict" style="width:100%;padding:16px;margin-bottom:10px"><span class="num">${icon('search')}</span><span class="grow"><b>Diccionario</b><small>Look up any Spanish or English word, hear it, and add it to your review.</small></span>${icon('chev')}</button>
   <button class="card li town" id="donote" style="width:100%;padding:16px;margin-bottom:14px"><span class="num">${icon('book')}</span><span class="grow"><b>Cuaderno · ${seen} learned</b><small>Every word and phrase you know, with sound. Search it or practise your weakest.</small></span>${icon('chev')}</button>
   <div class="card"><div class="row"><div class="grow"><h3>${icon('bolt')} Rayo</h3><p>60 seconds. Match as many pairs as you can.</p></div><div class="big">${ST.rayo}</div></div><button class="btn wide" id="dorayo">Jugar</button></div>
   ${IS_APP && !CAP.sample ? '' : `<div class="card"><h3>${icon('chat')} Charla</h3><p>${CAP.sample ? 'Chat in Spanish with people you’d meet in Spain. Typing only, nobody listens, and every message gets gentle corrections.' : 'Roleplay chats with corrections. They appear here when the app can reach Claude (open it signed in, on the web or desktop).'}</p>
@@ -3002,6 +3150,7 @@ function onView(e) {
     case 'soundtest': return Voice.seq([[WSAY.hola, {v: 'w'}], ['¿Me pones un café con leche?', {}]]);
     case 'gopueblo': return RPG.open();
     case 'donote': return openNotebook();
+    case 'dodict': return openDictionary();
     case 'bkexp': return exportBackup();
     case 'bkimp': return importBackup();
     case 'doreview': return startSession('review', {q: genReview()});
@@ -3026,9 +3175,10 @@ function welcome() {
   const m = modal(`${wilma('happy', 120)}<h2>¡Miau! Soy Wilma</h2><div class="tipbody"><p>I’ll be your guide. Here’s the deal:</p><p><b>1.</b> Lessons take 2–3 minutes. Hit <b>Seguir</b> and I pick the next step for you.</p><p><b>2.</b> No hearts, no punishment. What you miss simply comes back later, right when your memory needs it.</p><p><b>3.</b> You hear everything. Say it out loud with me, nobody is listening.</p><p><b>4.</b> <b>Pueblo</b> is a little town to walk around and talk in. <b>Temas</b> has Spanish for your own interests.</p><p>Already know some Spanish? Tap <b>Saltar</b> on a locked unit to jump ahead.</p></div><div class="acts"><button class="btn wide" data-close>¡Vamos!</button></div>`, {onClose: () => { ST.welcomed = 1; Store.save(); wsay('hola'); }});
 }
 function boot() {
-  Store.loadLocal(); if (IS_APP) { try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {} } ensureDay(); ensureQuests(); Voice.init(); Mic.init();
+  Store.loadLocal(); registerCustom(); if (IS_APP) { try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {} } ensureDay(); ensureQuests(); Voice.init(); Mic.init();
   cuse('sample').then(s => { CAP.sample = s; if (s && TAB === 'entrenar' && !$('#scr')) rerender(); });
   $('#view').addEventListener('click', onView);
+  $('#top').addEventListener('click', e => { if (e.target.closest('#topdict')) openDictionary(); });
   $('#nav').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) { Sfx.ac(); if (b.dataset.tab === 'pueblo') RPG.open(); else go(b.dataset.tab); } });
   go('camino'); Store.connect().then(() => { if (!ST.welcomed && !$('.modal')) welcome(); });
   setTimeout(() => { if (!ST.welcomed && !$('.modal') && !$('#scr')) welcome(); }, 1200);
