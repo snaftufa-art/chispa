@@ -21,3 +21,4 @@ F2 = this.data.F2 || {} | Diccionario: forms of two words (fui = ser/ir), accent
 if (!canHear(it.es)) | No silent listening exercises for words without sound
 const gateOk = | Obras: unit gate per building (Metro after unit 20, Barrio Alto after units 21–30)
 const shownBadges = | Charla badge hidden in the phone app
+const Rec = { | Record and listen (Grabarme) when speech recognition doesn't work, e.g. Vanadium; recording only in memory for one exercise

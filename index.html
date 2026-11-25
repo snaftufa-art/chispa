@@ -230,6 +230,9 @@ h1,h2,h3{text-wrap:balance;margin:0}
 .speakcard .es{font-size:26px;font-weight:600;line-height:1.3}
 .speakcard .en{color:var(--muted);margin-top:4px}
 .heard{font-size:15px;color:var(--muted);min-height:22px;margin:8px 0}
+.recplay{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:14px;border:2px solid var(--line);background:transparent;color:var(--blue);font:inherit;font-weight:700;cursor:pointer}
+.recplay svg{width:18px;height:18px}
+.recnote{display:block;font-size:12px;color:var(--muted);margin-top:6px}
 .lfoot{padding:12px 18px 18px;border-top:1px solid var(--line)}
 .lfoot .row{gap:10px}
 .check{width:100%;padding:16px;border-radius:16px;background:var(--sol);color:var(--ink);font-weight:800;font-size:17px;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 5px 0 var(--sol-deep)}
@@ -2951,7 +2954,8 @@ const wsay = key => { if (ST.wv) return Voice.speak(WSAY[key] || key, {v: 'w'});
 const Mic = {
   d: null, buf: '', alts: [], onText: null, onState: null, on: false, kind: '',
   init() {
-    const SRC = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let SRC = window.SpeechRecognition || window.webkitSpeechRecognition;
+    try { if (localStorage.getItem(NOREC)) SRC = null; } catch (e) {} // recogniser failed here before (e.g. Vanadium): use Rec instead
     if (typeof STANDALONE !== 'undefined' && STANDALONE && SRC) { this.d = this.web(SRC); this.kind = 'web'; CAP.dictation = this.d; return; }
     cuse('dictation').then(d => {
       if (!d) { if (SRC && !window.claude) { this.d = this.web(SRC); this.kind = 'web'; CAP.dictation = this.d; } return; }
@@ -2980,9 +2984,14 @@ const Mic = {
           };
           rec.onerror = e => {
             const er = e.error;
-            if (er === 'not-allowed' || er === 'service-not-allowed') { M.d = null; CAP.dictation = null; toast('Microphone blocked. Allow it in the browser settings, or tap “Lo he dicho”.'); }
+            if (er === 'service-not-allowed' || er === 'language-not-supported' || (er === 'network' && navigator.onLine !== false)) M.noService();
+            else if (er === 'not-allowed') {
+              // Vanadium says not-allowed even when the mic is allowed: then it's the missing speech service, not the permission
+              M.d = null; CAP.dictation = null;
+              const blocked = () => toast('Microphone blocked. Allow it in the browser settings, or tap “Lo he dicho”.');
+              try { navigator.permissions.query({name: 'microphone'}).then(p => p.state === 'granted' ? M.noService() : blocked(), blocked); } catch (e) { blocked(); }
+            }
             else if (er === 'network') toast('Speech checking needs internet. Tap “Lo he dicho” instead.');
-            else if (er === 'language-not-supported') { M.d = null; CAP.dictation = null; toast('Your phone can’t recognise Spanish yet. Tap “Lo he dicho”.'); }
             rej({code: er});
           };
           rec.onend = () => { M.on = false; M.onState && M.onState(false); if (endRes) { endRes(); endRes = null; } };
@@ -2998,9 +3007,55 @@ const Mic = {
     catch (e) { this.onState && this.onState(false); }
   },
   async stop() { try { await this.d.stop(); } catch (e) {} return this.buf; },
+  // this browser has the speech API but nothing behind it (Vanadium/GrapheneOS has no Google speech service)
+  noService() {
+    this.d = null; CAP.dictation = null; try { localStorage.setItem(NOREC, '1'); } catch (e) {}
+    toast(Rec.ok ? 'Speech checking doesn’t work in this browser. Tap “Grabarme” to hear yourself instead.' : 'Speech checking doesn’t work in this browser. Tap “Lo he dicho”.');
+  },
   // how close the best guess was to the sentence (0–1)
   score(target) { return Math.max(0, ...[this.buf, ...this.alts].filter(Boolean).map(t => similarity(t, target))); }
 };
+
+const NOREC = 'chispa.norec';
+// Record and listen: say it, then hear yourself next to the course voice. For browsers without speech recognition (Vanadium on GrapheneOS).
+// Privacy: the microphone only opens when you tap Grabarme and closes as soon as you stop. The recording only lives in memory
+// for the current exercise; Rec.clear() deletes it (next exercise, leaving a screen, app in the background). Never saved, never sent.
+const Rec = {
+  ok: !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+  mr: null, stream: null, url: null, el: null, t: null, owner: null,
+  get on() { return !!(this.mr && this.mr.state === 'recording'); },
+  async start(owner, onDone) {
+    this.clear(); this.owner = owner;
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: true, noiseSuppression: true}}); }
+    catch (e) { if (this.owner === owner) this.owner = null; toast('No microphone access. You can allow it in the browser’s site settings, or just tap “Lo he dicho”.'); return false; }
+    const off = () => stream.getTracks().forEach(t => t.stop());
+    if (this.owner !== owner) { off(); return false; } // cleared while the permission prompt was open
+    let mr; try { mr = new MediaRecorder(stream); } catch (e) { off(); this.owner = null; return false; }
+    const chunks = [];
+    mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    mr.onstop = () => {
+      off(); if (this.stream === stream) this.stream = null; if (this.mr === mr) this.mr = null;
+      if (this.owner !== owner || !chunks.length) { chunks.length = 0; onDone && onDone(false); return; }
+      this.url = URL.createObjectURL(new Blob(chunks, {type: mr.mimeType || 'audio/webm'})); chunks.length = 0; onDone && onDone(true);
+    };
+    this.stream = stream; this.mr = mr; mr.start();
+    clearTimeout(this.t); this.t = setTimeout(() => this.stop(), 12000); // never leave the mic open
+    return true;
+  },
+  stop() { clearTimeout(this.t); try { if (this.on) this.mr.stop(); } catch (e) {} },
+  play() { if (!this.url) return; Voice.stop(); if (!this.el) this.el = new Audio(); this.el.src = this.url; this.el.play().catch(() => {}); },
+  clear() {
+    clearTimeout(this.t); this.owner = null;
+    try { if (this.on) this.mr.stop(); } catch (e) {}
+    if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; }
+    this.mr = null;
+    if (this.el) { try { this.el.pause(); this.el.removeAttribute('src'); this.el.load(); } catch (e) {} }
+    if (this.url) { URL.revokeObjectURL(this.url); this.url = null; }
+  }
+};
+document.addEventListener('visibilitychange', () => { if (document.hidden) Rec.clear(); });
+const canMic = () => !!(Mic.d || Rec.ok);
 
 const Sfx = {
   ctx: null,
@@ -3285,7 +3340,7 @@ function genSceneQ(u) {
 /* ================= session engine ================= */
 let S = null;
 function openScreen(html) { closeScreen(); const s = document.createElement('div'); s.className = 'screen'; s.id = 'scr'; s.innerHTML = html; document.body.appendChild(s); return s; }
-function closeScreen() { Voice.stop(); const s = $('#scr'); if (s) { s.dispatchEvent(new Event('closing')); s.remove(); } document.onkeydown = null; }
+function closeScreen() { Voice.stop(); Rec.clear(); const s = $('#scr'); if (s) { s.dispatchEvent(new Event('closing')); s.remove(); } document.onkeydown = null; }
 
 function startSession(kind, cfg) {
   Sfx.ac(); newSession(); if (cfg.u) Voice.preload('u' + cfg.u);
@@ -3311,7 +3366,7 @@ function updateBar() {
   const c = $('#lc'); c.classList.toggle('hide', S.combo < 3); c.lastElementChild.textContent = 'x' + S.combo;
 }
 function renderEx() {
-  const ex = S.q[S.i]; if (!ex) return endSession();
+  Rec.clear(); const ex = S.q[S.i]; if (!ex) return endSession();
   S.rid = (S.rid || 0) + 1; // render id: answers and "Continuar" only count for the exercise they belong to (no double-tap skips)
   const b = $('#lb'), f = $('#lf'); b.innerHTML = ''; f.innerHTML = ''; $('#ls').className = 'sheet'; b.scrollTop = 0; S.cur = null;
   RENDER[ex.type](ex, b, f); updateBar();
@@ -3492,11 +3547,11 @@ RENDER.recall = (ex, b, f) => {
   b.innerHTML = `<div class="instr">${icon('mic')} De memoria: dilo en español</div><div class="prompt"><span>${esc(ex.prompt)}</span></div>
     <p class="hint" id="rh">Say it out loud first. Then check yourself. Nobody is listening.</p>
     <div class="speakcard" id="rv" hidden><div class="row">${sayBtn('a1')}<div class="es">${esc(ex.target)}</div></div></div>`;
-  f.innerHTML = Mic.d ? `<div class="row"><button class="check ghost" id="mic" style="flex:1">${icon('mic')} Grabar</button><button class="check" id="show" style="flex:1">Mostrar</button></div>` : `<button class="check" id="show">Mostrar respuesta</button>`;
-  if (Mic.d) { $('#rh').insertAdjacentHTML('afterend', '<div class="heard" id="heard"></div>'); $('#rh').textContent = 'Say it out loud. Tap Grabar and the phone checks you, or say it and tap Mostrar.';
+  f.innerHTML = canMic() ? `<div class="row"><button class="check ghost" id="mic" style="flex:1">${icon('mic')} Grabar</button><button class="check" id="show" style="flex:1">Mostrar</button></div>` : `<button class="check" id="show">Mostrar respuesta</button>`;
+  if (canMic()) { $('#rh').insertAdjacentHTML('afterend', '<div class="heard" id="heard"></div>'); $('#rh').textContent = Mic.d ? 'Say it out loud. Tap Grabar and the phone checks you, or say it and tap Mostrar.' : 'Say it out loud. Tap Grabarme to hear yourself, then tap Mostrar to compare.';
     micCheck($('#mic'), $('#heard'), ex.target, () => { $('#rv').hidden = false; if (Voice.ok) { $('#a1').onclick = () => Voice.speak(ex.target); } ST.st.spoken++; quest('speak'); quest('recall'); $('#heard').textContent = '¡Perfecto! Lo has dicho bien.'; Sfx.play('combo', 6); f.innerHTML = ''; setTimeout(() => answer(ex, true, {quick: true, xp: XPV.recall + 5}), 700); }, .7); }
   $('#show').onclick = () => {
-    $('#rv').hidden = false; $('#rh').textContent = 'Listen, say it once more, then be honest: did you have it?';
+    Rec.stop(); $('#rv').hidden = false; $('#rh').textContent = 'Listen, say it once more, then be honest: did you have it?';
     if (Voice.ok) { $('#a1').onclick = () => Voice.speak(ex.target); Voice.speak(ex.target); }
     ST.st.spoken++; quest('speak'); quest('recall');
     f.innerHTML = `<div class="row"><button class="check ghost" id="r0" style="flex:1">No</button><button class="check ghost" id="r1" style="flex:1">Casi</button><button class="check" id="r2" style="flex:1.3">¡Lo sabía!</button></div>`;
@@ -3523,7 +3578,7 @@ RENDER.speak = (ex, b, f) => {
   if (Voice.ok) { $('#a1').onclick = () => Voice.speak(ex.es); $('#a2').onclick = () => Voice.speak(ex.es, {slow: true}); Voice.speak(ex.es); }
   let finished = false;
   const done = bonus => { if (finished) return; finished = true; if (ex.k && !ST.items[ex.k]) grade(ex.k, true); ST.st.spoken++; quest('speak'); answer(ex, true, {noGrade: true, noCount: true, quick: true, xp: XPV.speak + (bonus || 0)}); };
-  if (Mic.d) {
+  if (canMic()) {
     f.innerHTML = `<div class="row"><button class="check ghost" id="mic" style="flex:1">${icon('mic')} Grabar</button><button class="check" id="said" style="flex:1">Lo he dicho</button></div>`;
     const heard = $('#heard');
     micCheck($('#mic'), heard, ex.es, () => { heard.textContent = '¡Te he entendido! +5 XP'; Sfx.play('combo', 6); done(5); });
@@ -3536,15 +3591,29 @@ RENDER.speak = (ex, b, f) => {
 
 // one button: tap to talk, it stops by itself after a pause and checks what it heard
 function micCheck(mb, heard, target, onHit, need = .6) {
-  let rec = false; const label = () => { mb.innerHTML = `${icon('mic')} ${rec ? 'Escuchando…' : 'Grabar'}`; mb.classList.toggle('live', rec); };
+  let rec = false; const own = {};
+  const label = () => { const r = !Mic.d; mb.innerHTML = `${icon('mic')} ${rec ? (r ? 'Parar' : 'Escuchando…') : (r ? 'Grabarme' : 'Grabar')}`; mb.classList.toggle('live', rec); };
+  label();
+  const playBtn = () => {
+    heard.innerHTML = `<button class="recplay" type="button">${icon('play')} Escúchate</button><span class="recnote">Only on this phone, deleted when you move on.</span>`;
+    $('.recplay', heard).onclick = () => Rec.play();
+  };
+  const recTap = () => {
+    if (rec) { Rec.stop(); return; }
+    rec = true; label(); heard.textContent = 'Grabando… Tap Parar when you’re done.';
+    Rec.start(own, got => { rec = false; if (mb.isConnected) label(); if (!heard.isConnected) return; if (got) { playBtn(); if (mb.isConnected) Rec.play(); } else heard.textContent = ''; })
+      .then(started => { if (!started) { rec = false; if (mb.isConnected) { label(); heard.textContent = ''; } } });
+  };
   const judge = () => {
     if (!mb.isConnected) return;
+    if (!Mic.d) { label(); heard.textContent = Rec.ok ? 'Speech checking doesn’t work here. Tap Grabarme to record yourself and listen.' : ''; return; }
     const s = Mic.score(target), txt = Mic.buf;
     if (s >= need) onHit(s);
     else heard.textContent = txt ? `Oigo: “${txt}”. Try once more, or check it yourself.` : 'I didn’t catch that. Try again, a bit louder.';
   };
   mb.onclick = () => {
     Voice.stop();
+    if (!Mic.d) { if (Rec.ok) recTap(); return; }
     if (!rec) { rec = true; label(); heard.textContent = 'Te escucho…'; Mic.start(t => { if (mb.isConnected) heard.textContent = 'Oigo: ' + t; }, on => { if (!on && rec) { rec = false; label(); judge(); } }); }
     else { rec = false; label(); Mic.stop().then(judge); }
   };
@@ -3573,7 +3642,7 @@ function wireChest(scope, bonus, onDone) {
   };
 }
 function endSession() {
-  const s = S; S = null;
+  Rec.clear(); const s = S; S = null;
   const n = s.right + s.wrong, acc = n ? Math.round(100 * s.right / n) : 100, perfect = s.wrong === 0 && s.right >= 3;
   const pass = s.kind === 'exam' ? acc >= 80 : (s.kind !== 'test' || acc >= 75);
   if (s.kind === 'exam' && pass) ST.examB1 = ST.examB1 || Date.now();
@@ -4036,12 +4105,12 @@ const RPG = (() => {
       await wait('rc'); ok = norm([...ans.children].map(c => c.textContent).join(' ')) === norm(es);
       Sfx.play(ok ? 'ok' : 'no'); xp = addXP(ok ? 10 : 3); floatXP(xp, $('#rz')); await reveal(ok ? 'Repítelo en voz alta.' : 'Casi. Así se dice. Repítelo en voz alta.');
     } else {
-      panel().innerHTML = `<div class="rdlg">${head}<div id="rz"><p class="rhint2">${icon('mic')} De memoria: dilo en voz alta.${Mic.d ? ' Tap Grabar and the phone checks you.' : ' Nobody is listening.'}</p><div class="heard" id="heard"></div>${Mic.d ? `<div class="row"><button class="check ghost" id="mic" style="flex:1">${icon('mic')} Grabar</button><button class="check" id="rs" style="flex:1">Mostrar</button></div>` : '<button class="check" id="rs">Mostrar respuesta</button>'}</div></div>`;
-      const heardOk = await new Promise(res => { $('#rs').onclick = () => res(false); if (Mic.d) micCheck($('#mic'), $('#heard'), es, () => res(true), .7); });
+      panel().innerHTML = `<div class="rdlg">${head}<div id="rz"><p class="rhint2">${icon('mic')} De memoria: dilo en voz alta.${Mic.d ? ' Tap Grabar and the phone checks you.' : Rec.ok ? ' Tap Grabarme to hear yourself.' : ' Nobody is listening.'}</p><div class="heard" id="heard"></div>${canMic() ? `<div class="row"><button class="check ghost" id="mic" style="flex:1">${icon('mic')} Grabar</button><button class="check" id="rs" style="flex:1">Mostrar</button></div>` : '<button class="check" id="rs">Mostrar respuesta</button>'}</div></div>`;
+      Rec.clear(); const heardOk = await new Promise(res => { $('#rs').onclick = () => { Rec.stop(); res(false); }; if (canMic()) micCheck($('#mic'), $('#heard'), es, () => res(true), .7); });
       if (heardOk) { ST.st.spoken++; quest('speak'); quest('recall'); Sfx.play('combo', 6); xp = addXP(15); floatXP(xp, $('#rz')); await reveal('¡Te he entendido! Perfecto.'); grade(k, true); return {ok: true}; } ST.st.spoken++; quest('speak'); quest('recall');
-      $('#rz').innerHTML = `<button class="rline ok" id="rl">${icon('speaker')}<span>${esc(es)}</span></button><div class="row" style="margin-top:10px"><button class="check ghost" id="r0" style="flex:1">No</button><button class="check ghost" id="r1" style="flex:1">Casi</button><button class="check" id="r2" style="flex:1.3">¡Lo sabía!</button></div>`;
-      $('#rl').onclick = () => Voice.speak(es); Voice.speak(es);
-      const r = await new Promise(res => [0, 1, 2].forEach(i => $('#r' + i).onclick = () => res(i)));
+      $('#rz').innerHTML = `<button class="rline ok" id="rl">${icon('speaker')}<span>${esc(es)}</span></button>${Rec.url ? `<div class="heard"><button class="recplay" type="button" id="rme">${icon('play')} Escúchate</button></div>` : ''}<div class="row" style="margin-top:10px"><button class="check ghost" id="r0" style="flex:1">No</button><button class="check ghost" id="r1" style="flex:1">Casi</button><button class="check" id="r2" style="flex:1.3">¡Lo sabía!</button></div>`;
+      $('#rl').onclick = () => Voice.speak(es); Voice.speak(es); if ($('#rme')) $('#rme').onclick = () => Rec.play();
+      const r = await new Promise(res => [0, 1, 2].forEach(i => $('#r' + i).onclick = () => res(i))); Rec.clear();
       ok = r === 2; if (r === 1) { xp = addXP(6); floatXP(xp, $('#rz')); return {ok: true, soft: true}; }
       Sfx.play(ok ? 'ok' : 'no'); xp = addXP(ok ? 12 : 3); floatXP(xp, $('#rz'));
     }
