@@ -238,6 +238,7 @@ h1,h2,h3{text-wrap:balance;margin:0}
 .check.ghost{background:transparent;color:var(--muted);box-shadow:none;border:2px solid var(--line)}
 .sheet{position:absolute;left:0;right:0;bottom:0;padding:18px 18px 18px;border-radius:22px 22px 0 0;transform:translateY(105%);transition:transform .22s cubic-bezier(.2,1.2,.4,1);z-index:3}
 .sheet.show{transform:none}
+.sheet:not(.show){pointer-events:none}
 .sheet.ok{background:#0c3a2c;box-shadow:0 -2px 0 var(--menta)}
 .sheet.no{background:#3a2408;box-shadow:0 -2px 0 var(--coral)}
 .sheet h3{font-family:var(--display);font-weight:400;font-size:28px;display:flex;align-items:center;gap:10px;margin-bottom:4px}
@@ -992,7 +993,7 @@ g:[["Voy a ___ una pizza.","hacer","hago|hace","I'm going to make a pizza."],["L
 tip:["On, off, up, down","<p><b>encender / apagar</b> = switch on / off · <b>subir / bajar</b> = turn up / down</p><p><b>Hay que + infinitive</b> = it needs doing, you have to: <b>Hay que reiniciar el router.</b></p><p>Spain says <b>el móvil</b> for mobile phone and <b>el ordenador</b> for computer.</p><p><b>Se ha caído el wifi</b> = the wifi has dropped.</p>"],
 w:[["la luz","light"],["el router","router"],["el wifi","wifi"],["la contraseña","password"],["la aplicación","app"],["el móvil","mobile phone"],["el altavoz","speaker"],["la pantalla","screen"],["el servidor","server"],["la red","network"],["el mando","remote control"],["la bombilla","light bulb"]],
 s:[["Enciende la luz.","Turn on the light."],["Apaga la luz, por favor.","Turn off the light, please."],["El wifi no funciona.","The wifi isn't working."],["¿Cuál es la contraseña del wifi?","What's the wifi password?"],["Lo controlo todo con el móvil.","I control everything with my phone."],["Hay que reiniciar el router.","The router needs restarting."]],
-g:[["___ la luz, por favor.","Enciende","Enciendo|Encender","Turn on the light, please."],["El wifi no ___.","funciona","funcionan|funcionar","The wifi isn't working."],["¿Cuál ___ la contraseña?","es","está|son","What's the password?"],["Hay ___ reiniciar el router.","que","de|a","The router needs restarting."],["La bombilla se conecta ___ wifi.","al","a la|en","The bulb connects to the wifi."],["Sube el volumen del ___.","altavoz","router|servidor","Turn up the speaker volume."]]},
+g:[["___ la luz, por favor.","Enciende","Enciendo|Encender","Turn on the light, please."],["El wifi no ___.","funciona","funcionan|funcionar","The wifi isn't working."],["¿Cuál ___ la contraseña?","es","está|son","What's the password?"],["Hay ___ reiniciar el router.","que","de|a","The router needs restarting."],["La bombilla se conecta ___ wifi.","al","del|en","The bulb connects to the wifi."],["Sube el volumen del ___.","altavoz","router|servidor","Turn up the speaker volume."]]},
 
 {id:107,lvl:"Tema",t:"El huerto",en:"The allotment garden",
 tip:["Garden talk","<p>Weather uses <b>hacer</b>: <b>hace sol</b>, <b>hace calor</b>, <b>hace frío</b>, <b>hace viento</b>. Rain is <b>llueve</b>.</p><p><b>regar</b> = to water · <b>plantar</b> = to plant · <b>cosechar</b> = to harvest</p><p>Ripe is <b>maduro</b>, unripe is <b>verde</b>: <b>Los tomates están verdes.</b></p>"],
@@ -1654,16 +1655,16 @@ NPCS.push(
   {id: 'noa_p', name: 'Noa', map: 'piso', x: 7, y: 5, look: {h: '#b388ff', t: '#ffe14f', s: '#8a5a3c'}, v: 'e', talks: ['inaug']}
 );
 Object.assign(PLACES, {
-  metro: {name: 'Metro', b: {x: 35, y: 16, w: 3, h: 4, roof: '#ff4fb0', sign: 'metro', label: 'METRO', travel: ['barrio', 10, 14], cost: 3}},
+  metro: {name: 'Metro', b: {x: 35, y: 16, w: 3, h: 4, roof: '#ff4fb0', sign: 'metro', label: 'METRO', travel: ['barrio', 10, 14], cost: 15, need: 20}},
   barrio: {name: 'Barrio Alto', out: true},
   metro2: {name: 'Metro', b: {x: 9, y: 10, w: 3, h: 4, roof: '#ff4fb0', sign: 'metro', label: 'METRO', on: 'barrio', travel: ['calle', 36, 20]}},
-  ayto: {name: 'Ayuntamiento', b: {x: 2, y: 3, w: 7, h: 4, roof: '#b388ff', sign: 'columns', label: 'AYUNTAMIENTO', on: 'barrio', cost: 2}, rows: ['HHnHHwHHnH', 'SS......SS', '..........', '..CCCCCC..', '..........', 'y.y....y.y', '..........', 'p........p', '####DD####']},
-  banco: {name: 'Banco', b: {x: 10, y: 3, w: 5, h: 4, roof: '#ffe14f', sign: 'coin', label: 'BANCO', on: 'barrio', cost: 1}, rows: ['HHnHHHwHHH', '..........', '.CCC..CCC.', '..........', '..........', 'y.y.....p.', '..........', 'p.........', '####DD####']},
-  inmo: {name: 'Inmobiliaria', b: {x: 16, y: 3, w: 5, h: 4, roof: '#2de2ff', sign: 'key', label: 'PISOS', on: 'barrio', cost: 1}, rows: ['HHnHHHHwHH', 'SS......SS', '..........', '.CCC......', '..........', '......y.y.', '..........', 'p........p', '####DD####']},
-  biblio: {name: 'Biblioteca', b: {x: 22, y: 3, w: 5, h: 4, roof: '#3dffa8', sign: 'book', label: 'BIBLIOTECA', on: 'barrio', cost: 1}, rows: ['HHnHHwHHnH', 'SSSS..SSSS', '..........', 'SS.tttt.SS', '...ssss...', '..........', 'SS......SS', '..........', '####DD####']},
-  salud: {name: 'Centro de salud', b: {x: 2, y: 10, w: 6, h: 4, roof: '#3dffa8', sign: 'cross', label: 'SALUD', on: 'barrio', cost: 1}, rows: ['HHnHHwHHHH', 'SS.vv...SS', '..........', '.CCC......', '..........', 'y.y.y.....', '..........', 'p........p', '####DD####']},
-  nave: {name: 'La Nave (coworking)', b: {x: 19, y: 10, w: 5, h: 4, roof: '#ffa53d', sign: 'chip', label: 'LA NAVE', on: 'barrio', cost: 1}, rows: ['HHnHwHHnHH', 'eeee..eeee', '..........', '.tt..tt.z.', '.ss..ss...', '..........', 'p.tt..tt.p', '..........', '####DD####']},
-  piso: {name: 'Tu piso nuevo', b: {x: 25, y: 10, w: 5, h: 4, roof: '#ff4fb0', sign: 'cat', label: 'TU PISO', on: 'barrio', cost: 2}, rows: ['HwHHnHHwHH', 'b...pSS..p', 'b.........', '...rrr....', '...rrr..t.', '..........', 'p.....s...', '..........', '####DD####']}
+  ayto: {name: 'Ayuntamiento', b: {x: 2, y: 3, w: 7, h: 4, roof: '#b388ff', sign: 'columns', label: 'AYUNTAMIENTO', on: 'barrio', cost: 6, need: 24}, rows: ['HHnHHwHHnH', 'SS......SS', '..........', '..CCCCCC..', '..........', 'y.y....y.y', '..........', 'p........p', '####DD####']},
+  banco: {name: 'Banco', b: {x: 10, y: 3, w: 5, h: 4, roof: '#ffe14f', sign: 'coin', label: 'BANCO', on: 'barrio', cost: 5, need: 21}, rows: ['HHnHHHwHHH', '..........', '.CCC..CCC.', '..........', '..........', 'y.y.....p.', '..........', 'p.........', '####DD####']},
+  inmo: {name: 'Inmobiliaria', b: {x: 16, y: 3, w: 5, h: 4, roof: '#2de2ff', sign: 'key', label: 'PISOS', on: 'barrio', cost: 5, need: 23}, rows: ['HHnHHHHwHH', 'SS......SS', '..........', '.CCC......', '..........', '......y.y.', '..........', 'p........p', '####DD####']},
+  biblio: {name: 'Biblioteca', b: {x: 22, y: 3, w: 5, h: 4, roof: '#3dffa8', sign: 'book', label: 'BIBLIOTECA', on: 'barrio', cost: 5, need: 25}, rows: ['HHnHHwHHnH', 'SSSS..SSSS', '..........', 'SS.tttt.SS', '...ssss...', '..........', 'SS......SS', '..........', '####DD####']},
+  salud: {name: 'Centro de salud', b: {x: 2, y: 10, w: 6, h: 4, roof: '#3dffa8', sign: 'cross', label: 'SALUD', on: 'barrio', cost: 5, need: 22}, rows: ['HHnHHwHHHH', 'SS.vv...SS', '..........', '.CCC......', '..........', 'y.y.y.....', '..........', 'p........p', '####DD####']},
+  nave: {name: 'La Nave (coworking)', b: {x: 19, y: 10, w: 5, h: 4, roof: '#ffa53d', sign: 'chip', label: 'LA NAVE', on: 'barrio', cost: 5, need: 27}, rows: ['HHnHwHHnHH', 'eeee..eeee', '..........', '.tt..tt.z.', '.ss..ss...', '..........', 'p.tt..tt.p', '..........', '####DD####']},
+  piso: {name: 'Tu piso nuevo', b: {x: 25, y: 10, w: 5, h: 4, roof: '#ff4fb0', sign: 'cat', label: 'TU PISO', on: 'barrio', cost: 8, need: 30}, rows: ['HwHHnHHwHH', 'b...pSS..p', 'b.........', '...rrr....', '...rrr..t.', '..........', 'p.....s...', '..........', '####DD####']}
 });
 function buildBarrio() {
   const W = 33, H = 17, m = Array.from({length: H}, () => Array(W).fill('.'));
@@ -2293,6 +2294,7 @@ const DEF = () => ({v: 2, xp: 0, gems: 60, streak: 0, best: 0, last: 0, freezes:
 let ST = DEF();
 const LS = 'chispa.v2';
 const CAP = {sample: null, dictation: null};
+const shownBadges = () => BADGES.filter(b => b[0] !== 'chat10' || CAP.sample || ST.badges.chat10); // no Charla in the phone app, so its badge is hidden there
 
 const Store = {
   mode: 'local', ref: null, writing: false, pending: false, timer: 0,
@@ -2640,6 +2642,10 @@ function keysEarned() {
   return units + (lvlInfo(ST.xp).L - 1) + Math.floor(Object.keys(ST.badges).length / 3) + Math.floor(Object.keys(ST.bonus || {}).length / 2) + Math.floor(gramDone() / 2);
 }
 const keysFree = () => Math.max(0, keysEarned() - (ST.keysSpent || 0));
+// construction sites: a building needs its keys and, for the Metro and Barrio Alto, the matching unit finished first
+const gateOk = b => !b.need || unitDone(b.need);
+const buildSites = () => Object.entries(PLACES).filter(([id, p]) => p.b && p.b.cost && !ST.built[id]);
+const canBuildNow = () => buildSites().some(([id, p]) => gateOk(p.b) && p.b.cost <= keysFree());
 const BADGES = [
   ['first', 'Primer paso', 'Finish your first lesson', 'star', s => s.st.lessons >= 1],
   ['tema', 'Lo mío', 'Finish one of your Temas', 'bolt', () => EXTRA.some(U => unitDone(U.id))],
@@ -2742,6 +2748,11 @@ function ladder(k) {
   const it = ITEMS[k], b = boxOf(k), r = Math.random();
   if (it.t === 'p') return exGram(k);
   if (it.t === 'g') return exGap(k);
+  // words from the dictionary may have no recording: without a Spanish phone voice, skip listening-only exercises
+  if (!canHear(it.es)) {
+    if (it.t === 'w' || tokens(it.es).length < 3) return b <= 1 ? exPick(k, r < .5 ? 'es2en' : 'en2es') : b === 2 ? exPick(k, 'en2es') : r < .6 ? exType(k) : exRecall(k);
+    return b <= 1 ? exPick(k, 'es2en') : b <= 4 ? exBuild(k, 'toEs') : r < .5 ? exRecall(k) : exBuild(k, 'toEs');
+  }
   if (it.t === 'w' || tokens(it.es).length < 3) {
     if (b <= 1) return r < .5 ? exLMean(k) : exPick(k, 'es2en');
     if (b === 2) return r < .5 ? exListen(k) : exPick(k, 'en2es');
@@ -2834,6 +2845,7 @@ function updateBar() {
 }
 function renderEx() {
   const ex = S.q[S.i]; if (!ex) return endSession();
+  S.rid = (S.rid || 0) + 1; // render id: answers and "Continuar" only count for the exercise they belong to (no double-tap skips)
   const b = $('#lb'), f = $('#lf'); b.innerHTML = ''; f.innerHTML = ''; $('#ls').className = 'sheet'; b.scrollTop = 0; S.cur = null;
   RENDER[ex.type](ex, b, f); updateBar();
   if (ex.tag) { const ins = $('.instr', b); if (ins) ins.insertAdjacentHTML('afterbegin', `<span class="new old">${esc(ex.tag)}</span>`); }
@@ -2842,6 +2854,8 @@ function next() { S.i++; renderEx(); }
 function footCheck(f, label = 'Comprobar') { f.innerHTML = `<button class="check" id="ck" disabled>${label}</button>`; const btn = $('#ck'); btn.onclick = () => { if (!btn.disabled && S.cur) S.cur(); }; return btn; }
 
 function answer(ex, ok, o = {}) {
+  if (!S || S.answered === S.rid) return; S.answered = S.rid;
+  const rid = S.rid, adv = () => { if (S && S.rid === rid) next(); };
   const tries = S.tries.get(ex) || 0; S.tries.set(ex, tries + 1);
   if (tries === 0 && !o.noGrade) ex.keys.forEach(k => grade(k, ok));
   if (tries === 0 && !o.noCount) ok ? S.right++ : S.wrong++;
@@ -2859,7 +2873,7 @@ function answer(ex, ok, o = {}) {
     if (tries < 2 && !o.noRequeue) { S.q.push(ex); requeued = true; } else S.done++;
   }
   updateBar();
-  if (o.quick) { floatXP(gained, $('#lf')); setTimeout(next, 420); return; }
+  if (o.quick) { floatXP(gained, $('#lf')); setTimeout(adv, 420); return; }
   const s = $('#ls'), word = ok ? pick(PRAISE) : pick(SOFT);
   s.innerHTML = `<div class="wsheet">${wilma(ok ? (S.combo >= 5 ? 'wow' : 'happy') : 'soft', 62)}</div><h3>${icon(ok ? 'check' : 'x')} ${esc(word)}</h3>
     ${!ok && o.sol ? `<div class="sol"><span style="opacity:.75">Correct answer:</span><br><b>${esc(o.sol)}</b></div>` : ''}
@@ -2875,7 +2889,7 @@ function answer(ex, ok, o = {}) {
   if (ST.wv && (!ok || !hear)) list.push([word, {v: 'w'}]);
   if (hear) list.push([o.say, {}]);
   const at = S.i; if (list.length) setTimeout(() => { if (S && S.i === at && $('#ls.show')) Voice.seq(list); }, ok ? 260 : 420);
-  $('#lnext').onclick = next;
+  $('#lnext').onclick = adv;
   if (ok) floatXP(gained, $('#lnext'));
 }
 
@@ -3503,7 +3517,16 @@ const RPG = (() => {
   }
   const fresh = n => !!pickConv(n).fresh;
   const doneCount = () => Object.keys(CONVS).filter(k => R().done[k]).length;
-  function nextGoal() { for (const [name, steps] of TOWN_QUESTS) { const s = steps.find(s => !R().done[s[1]]); if (s && name !== 'Vida de barrio') return s[0]; } const s = TOWN_QUESTS.find(q => q[0] === 'Vida de barrio')[1].find(s => !R().done[s[1]]); return s ? s[0] : 'Habla con quien quieras para practicar'; }
+  // a quest step counts only if you can reach that person (their building is built, Barrio Alto needs the Metro)
+  const mapOpen = m => { const p = PLACES[m]; if (!p) return true; if (p.b && locked({...p.b, id: m})) return false; return (p.b ? p.b.on || 'calle' : m) !== 'barrio' || !!ST.built.metro; };
+  const stepOpen = id => NPCS.some(n => n.talks.includes(id) && mapOpen(n.map));
+  function nextGoal() {
+    let blocked = false;
+    for (const [name, steps] of TOWN_QUESTS) { const s = steps.find(s => !R().done[s[1]]); if (s && name !== 'Vida de barrio') { if (stepOpen(s[1])) return s[0]; blocked = true; } }
+    const s = TOWN_QUESTS.find(q => q[0] === 'Vida de barrio')[1].find(s => !R().done[s[1]]); if (s) return s[0];
+    if (blocked) { const site = buildSites().sort((a, b) => (a[1].b.need || 0) - (b[1].b.need || 0))[0]; if (site) { const b = site[1].b; return gateOk(b) ? `Obras: ${site[1].name} · ${b.cost} llaves` : `Obras: ${site[1].name} · after unit ${b.need}`; } }
+    return 'Habla con quien quieras para practicar';
+  }
   const panel = () => $('#rp');
   function hud() {
     const l = $('#rloc'); if (!l) return; let near = ''; if (isOut()) for (const b of buildings()) { const [dx, dy] = doorOf(b); if (Math.abs(dx - P.x) + Math.abs(dy + 1 - P.y) <= 2) near = ' · ' + b.name; } l.textContent = M.pl.name + near; $('#rq').textContent = `${doneCount()}/${Object.keys(CONVS).length}`; const rk = $('#rk'); if (rk) rk.textContent = keysFree();
@@ -3638,10 +3661,10 @@ const RPG = (() => {
   function resize() { if (!cv) return; const w = cv.getBoundingClientRect().width || 320; SC = Math.max(2, Math.min(8, Math.round(w * (devicePixelRatio || 1) / (VW * T)))); cv.width = VW * T * SC; cv.height = VH * T * SC; }
   // construction site: spend keys earned in lessons to open a building
   function obras(b) {
-    const free = keysFree(), ok = free >= b.cost, name = PLACES[b.id].name;
+    const free = keysFree(), gate = gateOk(b), ok = gate && free >= b.cost, name = PLACES[b.id].name, U = b.need && COURSE[b.need - 1];
     const m = modal(`<div class="bigicon" style="background:#ffe14f">${icon('key')}</div><div class="instr" style="justify-content:center">Obras</div><h2>${esc(name)}</h2>
-      <p class="sub" style="margin:0 0 8px">${ok ? `Build it with ${b.cost} ${b.cost > 1 ? 'keys' : 'key'}. You have ${free}.` : `You need ${b.cost} ${b.cost > 1 ? 'keys' : 'key'}. You have ${free}.`}</p>
-      ${ok ? '' : `<div class="tipbody" style="font-size:14px"><p><b>Earn keys by learning:</b></p><p>🔑 every unit or Tema you finish<br>🔑 every level up<br>🔑 every 3 badges<br>🔑 every 2 “Más frases” lessons</p></div>`}
+      <p class="sub" style="margin:0 0 8px">${!gate ? `Opens when you finish unit ${b.need}: <b>${esc(U.t)}</b> (${esc(U.en)}). You’re on unit ${Math.min(ST.open, UNITS)}.<br>Then it costs ${b.cost} keys. You have ${free}.` : ok ? `Build it with ${b.cost} ${b.cost > 1 ? 'keys' : 'key'}. You have ${free}.` : `You need ${b.cost} ${b.cost > 1 ? 'keys' : 'key'}. You have ${free}.`}</p>
+      ${!gate ? `<div class="tipbody" style="font-size:14px"><p>The town grows with your Spanish: what people say here uses grammar from that unit.</p></div>` : ok ? '' : `<div class="tipbody" style="font-size:14px"><p><b>Earn keys by learning:</b></p><p>🔑 every unit or Tema you finish<br>🔑 every level up<br>🔑 every 3 badges<br>🔑 every 2 “Más frases” lessons</p></div>`}
       <div class="acts">${ok ? `<button class="btn wide" id="obgo">${icon('key')} ¡Construir!</button>` : `<button class="btn wide" id="oblearn">Ir a aprender</button>`}<button class="btn ghost wide" data-close>Ahora no</button></div>`);
     const go2 = $('#obgo', m.m); if (go2) go2.onclick = () => {
       ST.keysSpent = (ST.keysSpent || 0) + b.cost; ST.built[b.id] = Date.now(); Store.save(); m.m.remove();
@@ -3651,15 +3674,15 @@ const RPG = (() => {
     const gl = $('#oblearn', m.m); if (gl) gl.onclick = () => { m.m.remove(); closeScreen(); go('camino'); };
   }
   function questsModal() {
-    const sites = Object.entries(PLACES).filter(([id, p]) => p.b && p.b.cost && !ST.built[id]);
-    modal(`<h2>Misiones del pueblo</h2><p class="keychip">${icon('key')} ${keysFree()} ${keysFree() === 1 ? 'llave' : 'llaves'} to build with</p>${mgMissions()}${sites.length ? `<div class="tipbody"><p style="margin-bottom:4px"><b>Obras</b></p><div class="cando" style="margin:0 0 12px">${sites.map(([id, p]) => `<div class="next">${icon('key')}<span>${esc(p.name)} · ${p.b.cost} ${p.b.cost > 1 ? 'llaves' : 'llave'}${(p.b.on || 'calle') === 'barrio' ? ' (Barrio Alto)' : ''}</span></div>`).join('')}</div></div>` : ''}<div class="tipbody">${TOWN_QUESTS.map(([name, steps]) => `<p style="margin-bottom:4px"><b>${esc(name)}</b> · ${steps.filter(s => R().done[s[1]]).length}/${steps.length}</p><div class="cando" style="margin:0 0 12px">${steps.map(s => `<div class="${R().done[s[1]] ? '' : 'next'}">${icon(R().done[s[1]] ? 'check' : 'chev')}<span>${esc(s[0])}</span></div>`).join('')}</div>`).join('')}</div><div class="acts"><button class="btn wide" data-close>Cerrar</button></div>`);
+    const sites = buildSites().sort((a, b) => (a[1].b.need || 0) - (b[1].b.need || 0));
+    modal(`<h2>Misiones del pueblo</h2><p class="keychip">${icon('key')} ${keysFree()} ${keysFree() === 1 ? 'llave' : 'llaves'} to build with</p>${mgMissions()}${sites.length ? `<div class="tipbody"><p style="margin-bottom:4px"><b>Obras</b></p><div class="cando" style="margin:0 0 12px">${sites.map(([id, p]) => `<div class="${gateOk(p.b) ? 'next' : ''}">${icon(gateOk(p.b) ? 'key' : 'lock')}<span>${esc(p.name)} · ${p.b.cost} ${p.b.cost > 1 ? 'llaves' : 'llave'}${(p.b.on || 'calle') === 'barrio' ? ' (Barrio Alto)' : ''}${gateOk(p.b) ? '' : ` · after unit ${p.b.need}`}</span></div>`).join('')}</div></div>` : ''}<div class="tipbody">${TOWN_QUESTS.map(([name, steps]) => `<p style="margin-bottom:4px"><b>${esc(name)}</b> · ${steps.filter(s => R().done[s[1]]).length}/${steps.length}</p><div class="cando" style="margin:0 0 12px">${steps.map(s => `<div class="${R().done[s[1]] ? '' : 'next'}">${icon(R().done[s[1]] ? 'check' : 'chev')}<span>${esc(s[0])}</span></div>`).join('')}</div>`).join('')}</div><div class="acts"><button class="btn wide" data-close>Cerrar</button></div>`);
   }
   function open() {
     Sfx.ac(); dead = false;
     const s = openScreen(`<div class="lhead"><button class="xbtn" id="rx" aria-label="Close">${icon('x')}</button><div style="flex:1;min-width:0"><b id="rloc" style="font-size:17px"></b><div style="color:var(--muted);font-size:12.5px">Conversaciones <span id="rq"></span> · <span class="rkey">${icon('key')}</span> <span id="rk"></span></div></div><button class="pill" id="rm">${icon('target')} Misiones</button></div>
       <div class="rscreen"><canvas id="rcv" aria-label="Town map"></canvas></div><div class="rpanel" id="rp"></div>`);
     cv = $('#rcv'); g = cv.getContext('2d'); resize();
-    const r = R(), pl = PLACES[r.map] && PLACES[r.map].rows ? r.map : 'casa'; if (r.map === 'calle' && (r.x >= 40 || r.y >= 23)) { r.x = 12; r.y = 11; } if (PLACES[r.map] && PLACES[r.map].b && locked({...PLACES[r.map].b, id: r.map})) { r.map = 'casa'; r.x = 5; r.y = 6; } loadMap(pl, r.x, r.y, 'down'); if (blocked(P.x, P.y) && !(tileAt(P.x, P.y) === 'D')) loadMap('casa', 5, 6, 'down');
+    const r = R(), pl = PLACES[r.map] && PLACES[r.map].rows ? r.map : 'casa'; if (r.map === 'calle' && (r.x >= 40 || r.y >= 23)) { r.x = 12; r.y = 11; } if (PLACES[r.map] && PLACES[r.map].b && locked({...PLACES[r.map].b, id: r.map})) { r.map = 'casa'; r.x = 5; r.y = 6; } loadMap(PLACES[r.map] && PLACES[r.map].rows ? r.map : pl, r.x, r.y, 'down'); if (blocked(P.x, P.y) && !(tileAt(P.x, P.y) === 'D')) loadMap('casa', 5, 6, 'down');
     padUI();
     cv.addEventListener('pointerdown', tapMap);
     keyFn = e => { if ($('.modal')) return; const m = {ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right'}[e.key];
@@ -3951,7 +3974,7 @@ const RPG = (() => {
 
 /* ================= Diccionario: offline Spanish–English lookup ================= */
 // Data: Wiktionary (CC BY-SA) via github.com/doozan/spanish_data, built by tools/build_dict.py into dict.json.
-const POS_EN = {n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', interj: 'interjection', prep: 'preposition', conj: 'conjunction', pron: 'pronoun', art: 'article', num: 'number', phrase: 'phrase', det: 'determiner', contr: 'contraction', part: 'particle'};
+const POS_EN = {n: 'noun', prop: 'name', v: 'verb', adj: 'adjective', adv: 'adverb', interj: 'interjection', prep: 'preposition', conj: 'conjunction', pron: 'pronoun', art: 'article', num: 'number', phrase: 'phrase', det: 'determiner', contr: 'contraction', part: 'particle'};
 const Dict = {
   data: null, loading: null, en: null, pform: null, plainWords: null,
   load() {
@@ -3960,7 +3983,8 @@ const Dict = {
     return this.loading;
   },
   prep() {
-    const D = this.data.D; this.plainWords = D.map(e => plain(e[0])); this.en = new Map(); this.pform = new Map();
+    const D = this.data.D; this.plainWords = D.map(e => plain(e[0])); this.en = new Map(); this.pform = new Map(); this.exact = new Map();
+    D.forEach((e, i) => { const k = e[0].toLowerCase(); if (!this.exact.has(k)) this.exact.set(k, i); });
     for (const f in this.data.F) { const p = plain(f); if (!this.pform.has(p)) this.pform.set(p, [f, this.data.F[f]]); }
     D.forEach((e, i) => e[1].forEach((s, si) => s[2].slice(0, 3).forEach((g, gi) => {
       const main = g[0].replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').toLowerCase();
@@ -3976,17 +4000,35 @@ const Dict = {
   // returns [{i, via}] for Spanish matches, [{i}] for English matches, and app phrases
   search(q) {
     const out = {es: [], en: [], pre: [], app: []}; q = q.trim(); if (!q || !this.data) return out;
-    const p = plain(q), D = this.data.D, seen = new Set(), add = (i, via) => { if (!seen.has(i)) { seen.add(i); out.es.push({i, via}); } };
-    const exact = this.plainWords.indexOf(p); if (exact >= 0) add(exact);
-    const f = this.data.F[q.toLowerCase()] ?? (this.pform.get(p) || [])[1]; if (f !== undefined) add(f, (this.pform.get(p) || [q])[0]);
+    const p = plain(q), ql = q.toLowerCase(), D = this.data.D, F = this.data.F, F2 = this.data.F2 || {}, seen = new Set(), add = (i, via) => { if (!seen.has(i)) { seen.add(i); out.es.push({i, via}); } };
+    // a form can belong to several words (fui: ser and ir); F2 holds the extra ones
+    const form = (f, i) => { if (i !== undefined) add(i, f); (F2[f] || []).forEach(j => add(j, f)); };
+    const accented = ql !== p; // typed é, ñ…: that exact spelling comes first (sé = saber before se)
+    const ex = this.exact.get(ql); if (ex !== undefined) add(ex);
+    form(ql, F[ql]);
+    const pex = this.plainWords.indexOf(p); if (!accented && pex >= 0) add(pex);
+    const pf = this.pform.get(p); if (pf && pf[0] !== ql) form(pf[0], pf[1]);
+    if (accented && pex >= 0) add(pex);
     const direct = out.es.length;
     out.pre = []; if (p.length >= 2) for (let i = 0; i < D.length && out.pre.length < 12; i++) if (!seen.has(i) && this.plainWords[i].startsWith(p)) { seen.add(i); out.pre.push({i}); }
-    const toks = (q.toLowerCase().match(/[a-z][a-z'-]*/g) || []).filter(t => !['to', 'a', 'an', 'the'].includes(t));
-    if (!direct && toks.length && /^[a-z' -]+$/i.test(q)) {
+    // English plurals: cats → cat
+    const toks = (q.toLowerCase().match(/[a-z][a-z'-]*/g) || []).filter(t => !['to', 'a', 'an', 'the'].includes(t)).map(t => this.en.has(t) || !/[^s]s$/.test(t) ? t : t.slice(0, -1));
+    // English results also show when the only Spanish match is a rare word (house → casa, not just "house music")
+    const top = this.data.top || D.length, rare = direct && out.es.every(x => x.i > 2000 && x.i < top);
+    if ((!direct || rare) && toks.length && /^[a-z' -]+$/i.test(q)) {
       const best = new Map();
       (this.en.get(toks[0]) || []).forEach(([i, s]) => { const g = D[i][1].map(x => x[2].map(y => y[0]).join(' ')).join(' ').toLowerCase(); if (toks.every(t => g.includes(t))) best.set(i, Math.min(best.get(i) ?? 1e9, s)); });
       out.en = [...best].sort((a, b) => a[1] - b[1]).slice(0, 12).map(([i]) => ({i}));
       const enSet = new Set(out.en.map(x => x.i)); out.pre = out.pre.filter(x => !enSet.has(x.i));
+      out.en = out.en.filter(x => !out.es.some(y => y.i === x.i));
+      if (rare && out.en.length) { out.pre = [...out.es.map(x => ({i: x.i, via: x.via})), ...out.pre]; out.es = []; } // English meaning first, the rare word under "Más palabras"
+    }
+    // nothing yet: try the base form of plurals and feminines (resfriada → resfriado, bicis → bici),
+    // and infinitives with a pronoun attached (empadronarme → empadronarse, decirlo → decir)
+    if (!out.es.length && !out.en.length) {
+      const base = []; if (/s$/.test(p)) base.push(p.slice(0, -1)); if (/es$/.test(p)) base.push(p.slice(0, -2)); if (/as?$/.test(p)) base.push(p.replace(/as?$/, 'o')); if (/os$/.test(p)) base.push(p.slice(0, -1));
+      const cl = p.match(/^(.+[aei]r)(me|te|se|nos|os|lo|la|le|los|las|les)$/); if (cl) base.push(cl[1], cl[1] + 'se');
+      for (const c of base) { const j = this.plainWords.indexOf(c); if (j >= 0) add(j, q); else { const g = this.pform.get(c); if (g) add(g[1], q); } }
     }
     if (p.length >= 3) out.app = Object.values(ITEMS).filter(it => it.t === 's' && (plain(it.es).includes(p) || (toks.length && plain(it.en).includes(p)))).slice(0, 6);
     return out;
@@ -4473,7 +4515,7 @@ VIEWS.camino = () => {
     <div class="quests"><h3><span>Misiones de hoy</span><span>${Q.ids.filter(i => Q.d[i]).length}/3</span></h3>
     ${Q.ids.map(id => { const [t, goal] = QUESTS[id], p = Math.min(goal, Q.p[id] || 0); return `<div class="q ${Q.d[id] ? 'done' : ''}"><span>${esc(t)}</span><span class="n">${p}/${goal}</span><div class="bar"><i style="width:${100 * p / goal}%"></i></div></div>`; }).join('')}
     ${Q.chest === 1 ? `<button class="btn-chest" id="qchest">${icon('gem')} ¡Tres de tres! Abre tu cofre extra</button>` : ''}</div>`;
-  h += `<button class="li town" id="gopueblo"><span class="num">${icon('house')}</span><span class="grow"><b>El Pueblo · ${RPG.doneCount()}/${RPG.total()} · ${icon('key')} ${keysFree()}</b><small>${keysFree() && Object.entries(PLACES).some(([id, p]) => p.b && p.b.cost && !ST.built[id] && p.b.cost <= keysFree()) ? 'You have keys to build something new!' : esc(RPG.nextGoal())}</small></span>${icon('chev')}</button>`;
+  h += `<button class="li town" id="gopueblo"><span class="num">${icon('house')}</span><span class="grow"><b>El Pueblo · ${RPG.doneCount()}/${RPG.total()} · ${icon('key')} ${keysFree()}</b><small>${canBuildNow() ? 'You have keys to build something new!' : esc(RPG.nextGoal())}</small></span>${icon('chev')}</button>`;
   { const nw = gramNew().length; if (nw) h += `<button class="li town" id="gopgram"><span class="num">${icon('bulb')}</span><span class="grow"><b>Gramática · ${nw} tarjeta${nw > 1 ? 's' : ''} nueva${nw > 1 ? 's' : ''}</b><small>Wilma explains why Spanish says it like that.</small></span>${icon('chev')}</button>`; }
   if (IS_APP && ST.st.lessons >= 5 && Date.now() - (ST.backup || 0) > 14 * 864e5) h += `<button class="li town" id="bkexp" style="border-color:var(--pink)"><span class="num" style="background:var(--pink)">${icon('shield')}</span><span class="grow"><b>Haz una copia de seguridad</b><small>Your progress only lives on this phone. Takes 5 seconds.</small></span>${icon('chev')}</button>`;
   const done = COURSE.filter(U => unitDone(U.id));
@@ -4539,7 +4581,7 @@ VIEWS.progreso = () => {
     <div class="stat"><b>${ST.st.spoken}</b><span>sentences said out loud</span></div><div class="stat"><b>${RPG.doneCount()}/${RPG.total()}</b><span>town conversations</span></div><div class="stat"><b>${gramDone()}/${GRAM.length}</b><span>grammar patterns understood</span></div><div class="stat"><b>${keysEarned()}</b><span>keys earned · ${Object.keys(ST.built).length} buildings built</span></div><div class="stat"><b>${dueKeys().length}</b><span>waiting for review today</span></div><div class="stat"><b>${ST.xp}</b><span>total XP</span></div></div>
   <div class="card"><h3>Last 7 days</h3><p style="margin:0">Pink bars reached your goal of ${ST.goal} XP.</p><div class="week">${days.map(d => { const x = ST.hist[d] || 0; return `<div title="${x} XP"><i class="${x >= ST.goal ? 'hit' : ''}" style="height:${Math.round(100 * x / mx)}%;${x >= ST.goal ? 'background:var(--pink)' : x ? 'background:var(--blue);opacity:.6' : ''}"></i><span>${dn[new Date((d + .5) * 86400000).getUTCDay()]}</span></div>`; }).join('')}</div></div>
   <div class="card"><h3>Ya puedes…</h3><p>Things you can now do in Spanish.</p><div class="cando">${can.length ? can.map(U => `<div>${icon('check')}<span>${esc(U.en)}</span></div>`).join('') : ''}${nextU ? `<div class="next">${icon('chev')}<span>Next: ${esc(nextU.en)}</span></div>` : ''}</div></div>
-  <div class="card"><h3>Logros</h3><p>${Object.keys(ST.badges).length} of ${BADGES.length}</p><div class="badges">${BADGES.map(b => `<div class="badge ${ST.badges[b[0]] ? '' : 'off'}"><span class="medal">${icon(b[3])}</span><b>${esc(b[1])}</b><small>${esc(b[2])}</small></div>`).join('')}</div></div>
+  <div class="card"><h3>Logros</h3>${(bs => `<p>${bs.filter(b => ST.badges[b[0]]).length} of ${bs.length}</p>`)(shownBadges())}<div class="badges">${shownBadges().map(b => `<div class="badge ${ST.badges[b[0]] ? '' : 'off'}"><span class="medal">${icon(b[3])}</span><b>${esc(b[1])}</b><small>${esc(b[2])}</small></div>`).join('')}</div></div>
   ${wardrobeCard()}
   <div class="card shop"><h3>Tienda</h3><p>Spend your gems.</p><div class="list">
     <button class="li" id="buyfreeze"><span class="num">${icon('shield')}</span><span class="grow"><b>Protector de racha</b><small>Saves your streak if you miss a day. You have ${ST.freezes} of 3.</small></span><span class="tag">50 ${icon('gem')}</span></button>
