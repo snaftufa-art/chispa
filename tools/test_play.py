@@ -39,6 +39,7 @@ DATA = r"""(async () => {
   const bad = [], info = [];
   // conversations: flags given, waits, reachable NPCs
   const gives = {}; Object.entries(CONVS).forEach(([id, c]) => { if (c.give) gives[c.give] = 1; });
+  if (typeof MATCHES !== 'undefined') MATCHES.forEach(M => gives['cita_' + M.id] = 1);  // Ligoteo: the first chat with a match gives the date flag
   const talkers = {}; NPCS.forEach(n => n.talks.forEach(t => talkers[t] = 1));
   Object.entries(CONVS).forEach(([id, c]) => { if (c.need && !gives[c.need]) bad.push(`conv ${id}: needs '${c.need}' that nobody gives`); if (!talkers[id]) bad.push(`conv ${id}: nobody says it`); });
   NPCS.forEach(n => n.talks.forEach(t => { if (!CONVS[t]) bad.push(`npc ${n.id}: unknown conv ${t}`); }));
@@ -83,8 +84,9 @@ PLAY = r"""(async () => {
 })()"""
 
 TOWN = r"""(async () => {
-  await AP.sleep(300); await AP.closeModals(); const D = TW.D, entry = {calle: [12, 11], playa: [4, 5], barrio: [10, 14]}, bad = [];
+  await AP.sleep(300); await AP.closeModals(); const D = TW.D, entry = {calle: [12, 11], playa: [4, 5], barrio: [10, 14], arcoiris: [10, 14]}, bad = [];
   Object.entries(PLACES).forEach(([id, p]) => { if (p.b && p.b.cost) ST.built[id] = 1; });
+  if (typeof MATCHES !== 'undefined') MATCHES.forEach(M => ST.rpg.flags['cita_' + M.id] = 1);  // stands in for the Ligoteo chats (tools/test_b2.py plays those)
   await TW.enterMapAt('casa', 5, 6);
   for (const n of NPCS) { const pc = D().pickConv(n); if (pc.wait) { D().talk(n); await AP.sleep(30); const rn = document.querySelector('#rn'); if (!rn) bad.push('wait line without Continuar: ' + n.id); else AP.click(rn); await AP.sleep(30); if (D().talking) bad.push('stuck after wait line: ' + n.id); } }
   for (let pass = 0; pass < 30; pass++) { let any = false;

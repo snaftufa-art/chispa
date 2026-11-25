@@ -67,7 +67,7 @@ async def main():
         # 2. the new app reads it the same way
         await pg.goto(f'http://127.0.0.1:{PORT}/new/index.html'); await pg.wait_for_timeout(800)
         new = await pg.evaluate("() => ({keys: keysFree(), earned: keysEarned(), done: RPG.doneCount(), total: RPG.total(), due: dueKeys().length, seen: seenKeys().length, xp: ST.xp, gems: ST.gems, goal: RPG.nextGoal(), badges: checkBadges().length})")
-        ok(old == new, f'old save reads the same in the new app {new}')
+        ok({k: v for k, v in old.items() if k != 'total'} == {k: v for k, v in new.items() if k != 'total'} and new['total'] >= old['total'], f'old save reads the same in the new app {new}')  # total grows when new conversations ship
         ok(await pg.evaluate("() => JSON.stringify(ST.mg) === '{}'"), 'old save gets an empty minigame record')
         miss = await pg.evaluate("() => MG_LINES().filter(([v, t]) => !AUDIO.c[v + '|' + t]).map(x => x.join('|'))")
         ok(not miss, f'every minigame line has recorded audio {miss[:5]}')
@@ -210,7 +210,7 @@ async def main():
             await pg.evaluate(CLICK, "document.querySelector('#ra') && !RPG._dbg().talking")
         done = await pg.evaluate("() => Object.keys(ST.rpg.done)")
         ok(len(done) >= 7, f'conversations completed on a fresh save: {done}')
-        ok(await pg.evaluate("() => RPG.total()") == 55, 'still 55 conversations')
+        ok(await pg.evaluate("() => RPG.total()") >= 63, 'all 63+ conversations still there')
         await br.close()
     print('\nERRORS:', ERR if ERR else 'none')
 

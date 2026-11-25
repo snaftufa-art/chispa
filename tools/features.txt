@@ -11,6 +11,11 @@ const TOWN_QUESTS = | Town quest lines
 function keysEarned() | Llaves y obras (keys and building sites)
 const GRAM = | Gramática · Wilma explica
 const MG_GAMES = | Minijuegos: Busca a Wilma, Turno en Kebab Luna, Noche de bienvenida
+function gateState() | B2 gate: B1 done + 400 strong memories + Examen B1 (80%) before Barrio Arcoíris
+function genExamB1( | Examen B1
+const MATCHES = | Ligoteo matches (Ainhoa, Teo, Sam, Marcos, Luz) and their stories
+function openLigoteo( | Ligoteo dating-app minigame
+function buildArcoiris( | Barrio Arcoíris (third district)
 S.answered = S.rid | Double-tap guard: Continuar / ¡Lo sabía! can't skip the next exercise
 F2 = this.data.F2 || {} | Diccionario: forms of two words (fui = ser/ir), accents, plurals (needs dict.json F2 from tools/dict_patch.py)
 if (!canHear(it.es)) | No silent listening exercises for words without sound
