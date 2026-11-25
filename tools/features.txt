@@ -1,0 +1,13 @@
+# Shipped features: each line is a piece of code that must stay in index.html.
+# tools/guard.py fails if a line from the published version is missing (e.g. a session built from an old copy).
+# Add a line when you ship a feature. Remove one only when the user asked to remove that feature.
+const UNITS = | Course units A1–B1
+const SCENES = | Escenas (audio dialogues)
+const MORE = | Más frases bonus lessons
+const WARDROBE = | Wilma's wardrobe
+/* ================= Diccionario | Diccionario (offline dictionary)
+const PLACES = | El Pueblo town
+const TOWN_QUESTS = | Town quest lines
+function keysEarned() | Llaves y obras (keys and building sites)
+const GRAM = | Gramática · Wilma explica
+const MG_GAMES = | Minijuegos: Busca a Wilma, Turno en Kebab Luna, Noche de bienvenida
